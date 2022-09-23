@@ -39,4 +39,20 @@ describe("POST /recommendations", () => {
     expect(result.text).toEqual("Recommendations names must be unique");
 
   });
+
+  it("Send a recommendation with a wrong youtube link and should return 422 ", async () => {
+    //Arrange
+    const { name } = recommendationFactory.createRandomData();
+    const youtubeLink = "123345678";
+
+    //Act
+    const result = await agent.post("/recommendations").send({ name, youtubeLink });
+
+    //Assert
+    expect(result.statusCode).toEqual(422);
+  });
 })
+
+afterAll(async () => {
+  await prisma.$disconnect()
+});
