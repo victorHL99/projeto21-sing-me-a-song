@@ -2,6 +2,7 @@ import supertest from 'supertest';
 import app from '../../src/app';
 import { prisma } from "../../src/database"
 
+
 import { recommendationFactory } from '../factories/recommendationFactory.test';
 
 const agent = supertest(app);
@@ -51,6 +52,26 @@ describe("POST /recommendations", () => {
     //Assert
     expect(result.statusCode).toEqual(422);
   });
+})
+
+describe("POST /recommendations/:id/upvote", () => {
+  it("Send a rigth id and should return 200 ", async () => {
+    //Arrange
+    const { name, youtubeLink } = recommendationFactory.createRandomData();
+    const result = await agent.post("/recommendations").send({ name, youtubeLink });
+    const { id } = await prisma.recommendation.findFirst({
+      where: {
+        name
+      }
+    })
+
+    //Act
+    const resultUpvote = await agent.post(`/recommendations/${id}/upvote`);
+
+    //Assert
+    expect(resultUpvote.statusCode).toEqual(200);
+    expect(resultUpvote.text).toEqual("OK");
+  })
 })
 
 afterAll(async () => {
