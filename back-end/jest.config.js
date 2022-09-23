@@ -11,4 +11,12 @@ export default {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/dist/",
+    "/src/migrations/",
+    "/src/seeds/",
+    "/src/entities/",
+    "/back-end/tests/factories/",
+  ],
 };
