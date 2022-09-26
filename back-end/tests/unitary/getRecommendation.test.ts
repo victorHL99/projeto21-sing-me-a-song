@@ -93,4 +93,37 @@ describe("GET recommendationService test suite", () => {
       scoreFilter: "lte",
     })
   })
+
+  it("Should return recommendation object with a score greater than 10", async () => {
+    const recommendations = [
+      {
+        id: 1,
+        score: 5,
+        name: "Test1",
+        youtubeLink: "https://www.youtube.com/watch?v=FkWfbQbb4Hk",
+      },
+      {
+        id: 2,
+        score: 11,
+        name: "Test1",
+        youtubeLink: "https://www.youtube.com/watch?v=FkWfbQbb4Hk",
+      },
+    ]
+
+    jest.spyOn(Math, "random").mockImplementation(() => {
+      return 0.4
+    })
+    jest
+      .spyOn(recommendationRepository, "findAll")
+      .mockResolvedValueOnce([recommendations[1]] as any)
+
+    const result = await recommendationService.getRandom()
+
+    expect(result).toEqual(recommendations[1])
+    expect(recommendationRepository.findAll).toBeCalledTimes(1)
+    expect(recommendationRepository.findAll).toBeCalledWith({
+      score: 10,
+      scoreFilter: "gt",
+    })
+  })
 })
