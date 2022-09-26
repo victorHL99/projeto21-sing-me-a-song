@@ -64,6 +64,18 @@ describe("Vote test suite", () => {
       expect(recommendationRepository.remove).not.toBeCalled()
     });
 
+    it("Should downvote a not exist song recommendation ", async () => {
+      jest.spyOn(recommendationRepository, "find").mockResolvedValueOnce(null)
+      jest.spyOn(recommendationRepository, "updateScore").mockResolvedValueOnce(null)
+      jest.spyOn(recommendationRepository, "remove")
+
+      const result = await recommendationService.downvote(1)
+
+      expect(result).rejects.toHaveProperty("type", "not_found")
+      expect(recommendationRepository.find).toBeCalledTimes(1)
+      expect(recommendationRepository.updateScore).not.toBeCalled()
+      expect(recommendationRepository.remove).not.toBeCalled()
+    });
   });
 });
 
