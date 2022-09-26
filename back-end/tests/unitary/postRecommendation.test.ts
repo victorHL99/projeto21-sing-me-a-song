@@ -8,6 +8,7 @@ import { conflictError } from '../../src/utils/errorUtils.js';
 
 
 beforeEach(async () => {
+  await prisma.$executeRaw`TRUNCATE TABLE "recommendations" `;
   jest.resetAllMocks();
   jest.clearAllMocks();
 });
@@ -137,4 +138,8 @@ describe("Vote test suite", () => {
   });
 
 
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
 });
