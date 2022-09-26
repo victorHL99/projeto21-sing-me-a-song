@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "nodemon src/server.ts",
     "dev:tests": "dotenv -e .env.test nodemon src/server.ts",
-    "test:integration": "cross-env NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest -i --testPathPattern=/tests/integration"
+    "test:integration": "cross-env NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest -i --testPathPattern=/tests/integration",
+    "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test --coverage jest -i --testPathPattern=/tests/unit"
   },
   "keywords": [],
   "author": "",

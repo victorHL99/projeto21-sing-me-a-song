@@ -3,7 +3,7 @@ import app from '../../src/app';
 import { prisma } from "../../src/database"
 
 
-import { recommendationFactory } from '../factories/recommendationFactory.test';
+import { recommendationFactory } from '../../src/factories/recommendationFactory.test.js';
 
 const agent = supertest(app);
 
@@ -71,8 +71,84 @@ describe("POST /recommendations/:id/upvote", () => {
     //Assert
     expect(resultUpvote.statusCode).toEqual(200);
     expect(resultUpvote.text).toEqual("OK");
-  })
+  });
+
+  it("Send a wrong id and should return 404 ", async () => {
+    //Arrange
+    const id = 999999;
+
+    //Act
+    const resultUpvote = await agent.post(`/recommendations/${id}/upvote`);
+
+    //Assert
+    expect(resultUpvote.statusCode).toEqual(404);
+  });
 })
+
+describe("POST /recommendations/:id/downvote", () => {
+  it("Send a rigth id and should return 200 ", async () => {
+    //Arrange
+    const { name, youtubeLink } = recommendationFactory.createRandomData();
+    const result = await agent.post("/recommendations").send({ name, youtubeLink });
+    const { id } = await prisma.recommendation.findFirst({
+      where: {
+        name
+      }
+    })
+
+    //Act
+    const randonNumber = Math.floor(Math.random() * 5);
+    console.log(randonNumber)
+    for (let i = 0; i < randonNumber; i++) {
+      await agent.post(`/recommendations/${id}/upvote`);
+    }
+
+    const resultDownvote = await agent.post(`/recommendations/${id}/downvote`);
+
+    //Assert
+    expect(resultDownvote.statusCode).toEqual(200);
+  });
+
+  it("Send a wrong id and should return 404 ", async () => {
+    //Arrange
+    const id = 999999;
+
+    //Act
+    const resultDownvote = await agent.post(`/recommendations/${id}/downvote`);
+
+    //Assert
+    expect(resultDownvote.statusCode).toEqual(404);
+  });
+
+  it("Send a valid id with score -5, remove recommendation and should return 200 ", async () => {
+    //Arrange
+    const { name, youtubeLink } = recommendationFactory.createRandomData();
+    const result = await agent.post("/recommendations").send({ name, youtubeLink });
+    const { id } = await prisma.recommendation.findFirst({
+      where: {
+        name
+      }
+    })
+
+    //Act
+    for (let i = 0; i < 5; i++) {
+      await agent.post(`/recommendations/${id}/downvote`);
+    }
+
+    const resultDownvote = await agent.post(`/recommendations/${id}/downvote`);
+
+    const removeRecommendation = await prisma.recommendation.findFirst({
+      where: {
+        id
+      }
+    })
+
+    //Assert
+    expect(resultDownvote.statusCode).toEqual(200);
+    expect(removeRecommendation).toBeNull();
+  });
+});
+
 
 afterAll(async () => {
   await prisma.$disconnect()
