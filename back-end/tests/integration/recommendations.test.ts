@@ -149,6 +149,58 @@ describe("POST /recommendations/:id/downvote", () => {
   });
 });
 
+describe("GET /recommendations", () => {
+  it("Should return 200 and a list of with ten recommendations", async () => {
+    //Arrange
+    for (let i = 0; i < 10; i++) {
+      const { name, youtubeLink } = recommendationFactory.createRandomData();
+      const result = await agent.post("/recommendations").send({ name, youtubeLink });
+    }
+
+    //Act
+    const resultGet = await agent.get("/recommendations");
+
+    //Assert
+    expect(resultGet.statusCode).toEqual(200);
+    expect(resultGet.body).toHaveLength(10);
+  })
+})
+
+describe("GET /recommendations/:id", () => {
+  it("Should return 200 and a recommendation by id", async () => {
+    //Arrange
+    const { name, youtubeLink } = recommendationFactory.createRandomData();
+    const result = await agent.post("/recommendations").send({ name, youtubeLink });
+    const { id } = await prisma.recommendation.findFirst({
+      where: {
+        name
+      }
+    })
+
+    //Act
+    const resultGet = await agent.get(`/recommendations/${id}`);
+
+    //Assert
+    expect(resultGet.statusCode).toEqual(200);
+    expect(resultGet.body).toHaveProperty("id");
+    expect(resultGet.body).toHaveProperty("name");
+    expect(resultGet.body).toHaveProperty("youtubeLink");
+    expect(resultGet.body).toHaveProperty("score");
+  })
+
+  it("Should return 404 and a recommendation by id", async () => {
+    //Arrange
+    const id = 999999;
+
+    //Act
+    const resultGet = await agent.get(`/recommendations/${id}`);
+
+    //Assert
+    expect(resultGet.statusCode).toEqual(404);
+  })
+})
+
+
 
 afterAll(async () => {
   await prisma.$disconnect()
