@@ -200,6 +200,44 @@ describe("GET /recommendations/:id", () => {
   })
 })
 
+describe("GET /recommendations/random", () => {
+  it("Should return 200 and a random recommendation", async () => {
+    //Arrange
+    for (let i = 0; i < 10; i++) {
+      const { name, youtubeLink } = recommendationFactory.createRandomData();
+      const result = await agent.post("/recommendations").send({ name, youtubeLink });
+    }
+
+    //Act
+    const resultGet = await agent.get("/recommendations/random");
+
+    //Assert
+
+    expect(resultGet.statusCode).toEqual(200);
+    expect(resultGet.body).toHaveProperty("id");
+    expect(resultGet.body).toHaveProperty("name");
+    expect(resultGet.body).toHaveProperty("youtubeLink");
+    expect(resultGet.body).toHaveProperty("score");
+  })
+})
+
+describe("GET /recommendations/top/:amount", () => {
+  it("Should return 200 and a list of recommendations by amount", async () => {
+    //Arrange
+    for (let i = 0; i < 10; i++) {
+      const { name, youtubeLink } = recommendationFactory.createRandomData();
+      const result = await agent.post("/recommendations").send({ name, youtubeLink });
+    }
+
+    //Act
+    const resultGet = await agent.get("/recommendations/top/5");
+
+    //Assert
+    expect(resultGet.statusCode).toEqual(200);
+    expect(resultGet.body).toHaveLength(5);
+  })
+})
+
 
 
 afterAll(async () => {
