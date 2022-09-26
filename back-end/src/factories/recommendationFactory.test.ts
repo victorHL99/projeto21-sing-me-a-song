@@ -15,4 +15,5 @@ export const recommendationFactory = {
     youtubeLink,
     score,
   }),
+
 }
